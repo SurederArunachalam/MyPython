@@ -96,6 +96,7 @@ comp_if = 338
 encoding_decl = 339
 yield_expr = 340
 yield_arg = 341
+leftassign = 342
 #--end constants--
 
 sym_name = {}
