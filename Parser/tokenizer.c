@@ -106,7 +106,8 @@ const char *_PyParser_TokenNames[] = {
     "AWAIT",
     "ASYNC",
     "<ERRORTOKEN>",
-    "<N_TOKENS>"
+    "<N_TOKENS>",
+    "LASSIGN"
 };
 
 
@@ -1265,6 +1266,16 @@ PyToken_ThreeChars(int c1, int c2, int c3)
             switch (c3) {
             case '=':
                 return DOUBLESLASHEQUAL;
+            }
+            break;
+        }
+        break;
+    case '<':
+        switch (c2) {
+        case '=':
+            switch (c3) {
+            case '=':
+                return LASSIGN;
             }
             break;
         }
