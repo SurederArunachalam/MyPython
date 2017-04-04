@@ -18,6 +18,7 @@ typedef enum _boolop { And=1, Or=2 } boolop_ty;
 typedef enum _operator { Add=1, Sub=2, Mult=3, MatMult=4, Div=5, Mod=6, Pow=7,
                          LShift=8, RShift=9, BitOr=10, BitXor=11, BitAnd=12,
                          FloorDiv=13 } operator_ty;
+
 typedef enum _operator_partha { LAssign=1 } operator_partha;
 
 typedef enum _unaryop { Invert=1, Not=2, UAdd=3, USub=4 } unaryop_ty;
@@ -72,7 +73,7 @@ enum _stmt_kind {FunctionDef_kind=1, AsyncFunctionDef_kind=2, ClassDef_kind=3,
                   AsyncWith_kind=14, Raise_kind=15, Try_kind=16,
                   Assert_kind=17, Import_kind=18, ImportFrom_kind=19,
                   Global_kind=20, Nonlocal_kind=21, Expr_kind=22, Pass_kind=23,
-                  Break_kind=24, Continue_kind=25};
+                  Break_kind=24, Continue_kind=25, LeftAssign_kind=26};
 struct _stmt {
     enum _stmt_kind kind;
     union {
@@ -121,6 +122,12 @@ struct _stmt {
             operator_ty op;
             expr_ty value;
         } AugAssign;
+      
+        struct {
+            expr_ty target;
+            operator_ty op;
+            expr_ty value;
+        } LeftAssign;
         
         struct {
             expr_ty target;
@@ -475,6 +482,9 @@ stmt_ty _Py_Assign(asdl_seq * targets, expr_ty value, int lineno, int
                    col_offset, PyArena *arena);
 #define AugAssign(a0, a1, a2, a3, a4, a5) _Py_AugAssign(a0, a1, a2, a3, a4, a5)
 stmt_ty _Py_AugAssign(expr_ty target, operator_ty op, expr_ty value, int
+                      lineno, int col_offset, PyArena *arena);
+#define LeftAssign(a0, a1, a2, a3, a4, a5) _Py_LeftAssign(a0, a1, a2, a3, a4, a5)
+stmt_ty _Py_LeftAssign(expr_ty target, operator_partha op, expr_ty value, int
                       lineno, int col_offset, PyArena *arena);
 #define AnnAssign(a0, a1, a2, a3, a4, a5, a6) _Py_AnnAssign(a0, a1, a2, a3, a4, a5, a6)
 stmt_ty _Py_AnnAssign(expr_ty target, expr_ty annotation, expr_ty value, int
