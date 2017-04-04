@@ -402,6 +402,9 @@ validate_stmt(stmt_ty stmt)
     case AugAssign_kind:
         return validate_expr(stmt->v.AugAssign.target, Store) &&
             validate_expr(stmt->v.AugAssign.value, Load);
+   case LeftAssign_kind:
+        return validate_expr(stmt->v.LeftAssign.target, Store) &&
+            validate_expr(stmt->v.LeftAssign.value, Load);
     case AnnAssign_kind:
         if (stmt->v.AnnAssign.target->kind != Name_kind &&
             stmt->v.AnnAssign.simple) {
@@ -1155,6 +1158,20 @@ ast_for_augassign(struct compiling *c, const node *n)
     }
 }
 
+static operator_partha
+ast_for_leftassign(struct compiling *c, const node *n)
+{
+    REQ(n, leftassign);
+    n = CHILD(n, 0);
+    switch (TYPE(n)) {
+             case LASSIGN:
+                return LAssign;
+             default:
+            PyErr_Format(PyExc_SystemError, "invalid leftassign: %s", STR(n));
+            return (operator_partha)0;
+    }
+}
+    
 static cmpop_ty
 ast_for_comp_op(struct compiling *c, const node *n)
 {
@@ -2947,6 +2964,44 @@ ast_for_expr_stmt(struct compiling *c, const node *n)
             return NULL;
 
         return AugAssign(expr1, newoperator, expr2, LINENO(n), n->n_col_offset, c->c_arena);
+    }
+     else if (TYPE(CHILD(n, 1)) == leftassign) {
+        expr_ty expr1, expr2;
+        operator_partha newoperator;
+        node *ch = CHILD(n, 0);
+
+        expr1 = ast_for_testlist(c, ch);
+        if (!expr1)
+            return NULL;
+        if(!set_context(c, expr1, Store, ch))
+            return NULL;
+        /* set_context checks that most expressions are not the left side.
+          Augmented assignments can only have a name, a subscript, or an
+          attribute on the left, though, so we have to explicitly check for
+          those. */
+        switch (expr1->kind) {
+            case Name_kind:
+            case Attribute_kind:
+            case Subscript_kind:
+                break;
+            default:
+                ast_error(c, ch, "illegal expression for left assignment");
+                return NULL;
+        }
+
+        ch = CHILD(n, 2);
+        if (TYPE(ch) == testlist)
+            expr2 = ast_for_testlist(c, ch);
+        else
+            expr2 = ast_for_expr(c, ch);
+        if (!expr2)
+            return NULL;
+
+        newoperator = ast_for_leftassign(c, CHILD(n, 1));
+        if (!newoperator)
+            return NULL;
+
+        return LeftAssign(expr1, newoperator, expr2, LINENO(n), n->n_col_offset, c->c_arena);
     }
     else if (TYPE(CHILD(n, 1)) == annassign) {
         expr_ty expr1, expr2, expr3;
