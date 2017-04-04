@@ -105,6 +105,12 @@ class Unparser:
         self.dispatch(t.target)
         self.write(" "+self.binop[t.op.__class__.__name__]+"= ")
         self.dispatch(t.value)
+    
+    def _LeftAssign(self, t):
+        self.fill()
+        self.dispatch(t.target)
+        self.write(" "+self.binop[t.op.__class__.__name__]+"= ")
+        self.dispatch(t.value)
 
     def _AnnAssign(self, t):
         self.fill()
