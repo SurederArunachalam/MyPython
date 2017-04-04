@@ -103,6 +103,7 @@ The token constants are:
           ERRORTOKEN
           N_TOKENS
           NT_OFFSET
+          LASSIGN
 
    .. versionchanged:: 3.5
       Added :data:`AWAIT` and :data:`ASYNC` tokens. Starting with
