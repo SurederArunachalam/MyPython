@@ -179,6 +179,7 @@ static int compiler_visit_stmt(struct compiler *, stmt_ty);
 static int compiler_visit_keyword(struct compiler *, keyword_ty);
 static int compiler_visit_expr(struct compiler *, expr_ty);
 static int compiler_augassign(struct compiler *, stmt_ty);
+static int compiler_leftassign(struct compiler *, stmt_ty);
 static int compiler_annassign(struct compiler *, stmt_ty);
 static int compiler_visit_slice(struct compiler *, slice_ty,
                                 expr_context_ty);
@@ -2798,6 +2799,8 @@ compiler_visit_stmt(struct compiler *c, stmt_ty s)
         break;
     case AugAssign_kind:
         return compiler_augassign(c, s);
+    case LeftAssign_kind:
+        return compiler_leftassign(c, s);
     case AnnAssign_kind:
         return compiler_annassign(c, s);
     case For_kind:
@@ -4461,6 +4464,52 @@ compiler_augassign(struct compiler *c, stmt_ty s)
     default:
         PyErr_Format(PyExc_SystemError,
             "invalid node type (%d) for augmented assignment",
+            e->kind);
+        return 0;
+    }
+    return 1;
+}
+
+static int
+compiler_leftassign(struct compiler *c, stmt_ty s)
+{
+    expr_ty e = s->v.LeftAssign.target;
+    expr_ty auge;
+
+    assert(s->kind == LeftAssign_kind);
+
+    switch (e->kind) {
+    case Attribute_kind:
+        auge = Attribute(e->v.Attribute.value, e->v.Attribute.attr,
+                         AugLoad, e->lineno, e->col_offset, c->c_arena);
+        if (auge == NULL)
+            return 0;
+        VISIT(c, expr, auge);
+        VISIT(c, expr, s->v.LeftAssign.value);
+        ADDOP(c, inplace_binop(c, s->v.LeftAssign.op));
+        auge->v.Attribute.ctx = AugStore;
+        VISIT(c, expr, auge);
+        break;
+    case Subscript_kind:
+        auge = Subscript(e->v.Subscript.value, e->v.Subscript.slice,
+                         AugLoad, e->lineno, e->col_offset, c->c_arena);
+        if (auge == NULL)
+            return 0;
+        VISIT(c, expr, auge);
+        VISIT(c, expr, s->v.LeftAssign.value);
+        ADDOP(c, inplace_binop(c, s->v.LeftAssign.op));
+        auge->v.Subscript.ctx = AugStore;
+        VISIT(c, expr, auge);
+        break;
+    case Name_kind:
+        if (!compiler_nameop(c, e->v.Name.id, Load))
+            return 0;
+        VISIT(c, expr, s->v.LeftAssign.value);
+        ADDOP(c, inplace_binop(c, s->v.LeftAssign.op));
+        return compiler_nameop(c, e->v.Name.id, Store);
+    default:
+        PyErr_Format(PyExc_SystemError,
+            "invalid node type (%d) for Left assignment",
             e->kind);
         return 0;
     }
