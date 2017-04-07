@@ -215,4 +215,7 @@ def_op('BUILD_TUPLE_UNPACK_WITH_CALL', 158)
 name_op('LOAD_METHOD', 160)
 def_op('CALL_METHOD', 161)
 
+def_op('BINARY_LEFT_DOUBLE_EQUAL', 162)
+def_op('INPLACE_LEFT_DOUBLE_EQUAL', 163)
+
 del def_op, name_op, jrel_op, jabs_op
