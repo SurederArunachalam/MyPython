@@ -925,6 +925,8 @@ get_operator(const node *n)
             return FloorDiv;
         case PERCENT:
             return Mod;
+        case LEFTDOUBLEEQUAL:
+            return LDEqual;
         default:
             return (operator_ty)0;
     }
@@ -1133,7 +1135,10 @@ ast_for_augassign(struct compiling *c, const node *n)
         case '%':
             return Mod;
         case '<':
-            return LShift;
+            if (STR(n)[1] == '=')
+                return LDEqual;
+            else
+                return LShift;
         case '>':
             return RShift;
         case '&':
