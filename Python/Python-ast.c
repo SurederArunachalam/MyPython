@@ -399,7 +399,7 @@ static PyTypeObject *operator_type;
 static PyObject *Add_singleton, *Sub_singleton, *Mult_singleton,
 *MatMult_singleton, *Div_singleton, *Mod_singleton, *Pow_singleton,
 *LShift_singleton, *RShift_singleton, *BitOr_singleton, *BitXor_singleton,
-*BitAnd_singleton, *FloorDiv_singleton;
+*BitAnd_singleton, *FloorDiv_singleton, *LDEqual_singleton;
 static PyObject* ast2obj_operator(operator_ty);
 static PyTypeObject *Add_type;
 static PyTypeObject *Sub_type;
@@ -414,6 +414,7 @@ static PyTypeObject *BitOr_type;
 static PyTypeObject *BitXor_type;
 static PyTypeObject *BitAnd_type;
 static PyTypeObject *FloorDiv_type;
+static PyTypeObject *LDEqual_type;
 static PyTypeObject *unaryop_type;
 static PyObject *Invert_singleton, *Not_singleton, *UAdd_singleton,
 *USub_singleton;
@@ -1096,6 +1097,10 @@ static int init_types(void)
     if (!FloorDiv_type) return 0;
     FloorDiv_singleton = PyType_GenericNew(FloorDiv_type, NULL, NULL);
     if (!FloorDiv_singleton) return 0;
+    LDEqual_type = make_type("LDEqual", operator_type, NULL, 0);
+    if (!LDEqual_type) return 0;
+    LDEqual_singleton = PyType_GenericNew(LDEqual_type, NULL, NULL);
+    if (!LDEqual_singleton) return 0;
     unaryop_type = make_type("unaryop", &AST_type, NULL, 0);
     if (!unaryop_type) return 0;
     if (!add_attributes(unaryop_type, NULL, 0)) return 0;
@@ -3662,6 +3667,9 @@ PyObject* ast2obj_operator(operator_ty o)
         case FloorDiv:
             Py_INCREF(FloorDiv_singleton);
             return FloorDiv_singleton;
+        case LDEqual:
+            Py_INCREF(LDEqual_singleton);
+            return LDEqual_singleton;
         default:
             /* should never happen, but just in case ... */
             PyErr_Format(PyExc_SystemError, "unknown operator found");
@@ -7271,6 +7279,14 @@ obj2ast_operator(PyObject* obj, operator_ty* out, PyArena* arena)
     }
     if (isinstance) {
         *out = FloorDiv;
+        return 0;
+    }
+    isinstance = PyObject_IsInstance(obj, (PyObject *)LDEqual_type);
+    if (isinstance == -1) {
+        return 1;
+    }
+    if (isinstance) {
+        *out = LDEqual;
         return 0;
     }
 
