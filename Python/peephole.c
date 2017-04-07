@@ -256,6 +256,9 @@ fold_binops_on_constants(_Py_CODEUNIT *codestr, Py_ssize_t c_start,
         case BINARY_FLOOR_DIVIDE:
             newconst = PyNumber_FloorDivide(v, w);
             break;
+        case BINARY_LEFT_DOUBLE_EQUAL:
+            newconst = PyNumber_FloorDivide(v, w);
+            break;
         case BINARY_MODULO:
             newconst = PyNumber_Remainder(v, w);
             break;
