@@ -43,7 +43,7 @@ expr_stmt: testlist_star_expr (annassign | augassign (yield_expr|testlist) |
 annassign: ':' test ['=' test]
 testlist_star_expr: (test|star_expr) (',' (test|star_expr))* [',']
 augassign: ('+=' | '-=' | '*=' | '@=' | '/=' | '%=' | '&=' | '|=' | '^=' |
-            '<<=' | '>>=' | '**=' | '//=')
+            '<<=' | '>>=' | '**=' | '//=' | '<==')
 # For normal and annotated assignments, additional restrictions enforced by the interpreter
 del_stmt: 'del' exprlist
 pass_stmt: 'pass'
