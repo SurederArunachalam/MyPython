@@ -96,6 +96,7 @@ EXACT_TOKEN_TYPES = {
     '->':  RARROW,
     '@':   AT,
     '@=':  ATEQUAL,
+    '<==': LEFTDOUBLEEQUAL,
 }
 
 class TokenInfo(collections.namedtuple('TokenInfo', 'type string start end line')):
