@@ -592,7 +592,7 @@ class HTMLDoc(Doc):
                                 r'RFC[- ]?(\d+)|'
                                 r'PEP[- ]?(\d+)|'
                                 r'(self\.)?(\w+))')
-        while True:
+        while True:_
             match = pattern.search(text, here)
             if not match: break
             start, end = match.span()
@@ -1749,7 +1749,7 @@ class Helper:
         'COMPARISON' : ('<', '>', '<=', '>=', '==', '!=', '<>'),
         'UNARY' : ('-', '~'),
         'AUGMENTEDASSIGNMENT' : ('+=', '-=', '*=', '/=', '%=', '&=', '|=',
-                                '^=', '<<=', '>>=', '**=', '//='),
+                                '^=', '<<=', '>>=', '**=', '//=', '<=='),
         'BITWISE' : ('<<', '>>', '&', '|', '^', '~'),
         'COMPLEX' : ('j', 'J')
     }
