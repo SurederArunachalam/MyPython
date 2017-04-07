@@ -1350,6 +1350,18 @@ _PyEval_EvalFrameDefault(PyFrameObject *f, int throwflag)
                 goto error;
             DISPATCH();
         }
+              
+        TARGET(BINARY_LEFT_DOUBLE_EQUAL) {
+            PyObject *divisor = POP();
+            PyObject *dividend = TOP();
+            PyObject *quotient = PyNumber_FloorDivide(dividend, divisor);
+            Py_DECREF(dividend);
+            Py_DECREF(divisor);
+            SET_TOP(quotient);
+            if (quotient == NULL)
+                goto error;
+            DISPATCH();
+        }
 
         TARGET(BINARY_MODULO) {
             PyObject *divisor = POP();
@@ -1554,6 +1566,18 @@ _PyEval_EvalFrameDefault(PyFrameObject *f, int throwflag)
         }
 
         TARGET(INPLACE_FLOOR_DIVIDE) {
+            PyObject *divisor = POP();
+            PyObject *dividend = TOP();
+            PyObject *quotient = PyNumber_InPlaceFloorDivide(dividend, divisor);
+            Py_DECREF(dividend);
+            Py_DECREF(divisor);
+            SET_TOP(quotient);
+            if (quotient == NULL)
+                goto error;
+            DISPATCH();
+        }
+        
+        TARGET(INPLACE_LEFT_DOUBLE_EQUAL) {
             PyObject *divisor = POP();
             PyObject *dividend = TOP();
             PyObject *quotient = PyNumber_InPlaceFloorDivide(dividend, divisor);
