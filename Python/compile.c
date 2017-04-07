@@ -887,9 +887,11 @@ PyCompile_OpcodeStackEffect(int opcode, int oparg)
         case BINARY_SUBTRACT:
         case BINARY_SUBSCR:
         case BINARY_FLOOR_DIVIDE:
+        case BINARY_LEFT_DOUBLE_EQUAL:
         case BINARY_TRUE_DIVIDE:
             return -1;
         case INPLACE_FLOOR_DIVIDE:
+        case INPLACE_LEFT_DOUBLE_EQUAL:
         case INPLACE_TRUE_DIVIDE:
             return -1;
 
@@ -2902,6 +2904,8 @@ binop(struct compiler *c, operator_ty op)
         return BINARY_AND;
     case FloorDiv:
         return BINARY_FLOOR_DIVIDE;
+    case LDEqual:            
+        return BINARY_LEFT_DOUBLE_EQUAL;
     default:
         PyErr_Format(PyExc_SystemError,
             "binary op %d should not be possible", op);
@@ -2968,6 +2972,8 @@ inplace_binop(struct compiler *c, operator_ty op)
         return INPLACE_AND;
     case FloorDiv:
         return INPLACE_FLOOR_DIVIDE;
+    case LDEqual:
+        return INPLACE_LEFT_DOUBLE_EQUAL;
     default:
         PyErr_Format(PyExc_SystemError,
             "inplace binary op %d should not be possible", op);
